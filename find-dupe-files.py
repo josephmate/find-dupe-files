@@ -11,15 +11,19 @@ def getPath(folder, file):
   else:
     return folder + "/" + file
 
+# if the file does not exist, return an empty string
 def computeMd5(filePath):
+  try:
     with open(filePath, 'rb') as fh:
-        m = hashlib.md5()
-        while True:
-            data = fh.read(8192)
-            if not data:
-                break
-            m.update(data)
-        return m.hexdigest()
+      m = hashlib.md5()
+      while True:
+        data = fh.read(8192)
+        if not data:
+          break
+        m.update(data)
+      return m.hexdigest()
+  except IOError:
+    return ""
 
 files = []
 
@@ -38,6 +42,8 @@ print "found " + str(len(files)) + " files."
 filesDone = 0
 
 # mapping of a file's hash to all the files that have that hash
+# all files with the empty hash are files that could
+# not be processed
 hashes = dict()
 print "finding duplicates"
 for file in files:
