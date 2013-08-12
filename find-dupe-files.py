@@ -48,7 +48,10 @@ hashes = dict()
 print "finding duplicates"
 for file in files:
   md5 = computeMd5(file)
-  dupeFiles = hashes.get(md5, [])
+  dupeFiles = hashes.get(md5)
+  if dupeFiles == None:
+    dupeFiles = []
+    hashes[md5] = dupeFiles
   dupeFiles.append(file)
 
 
@@ -58,5 +61,5 @@ for file in files:
 
 print "printing dupes"
 for key, value in hashes.iteritems():
-  if len(value) > 1 :
-    print key + value.join("\t")
+  if len(value) > 1:
+    print key + "\t" + "\t".join(value)
