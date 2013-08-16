@@ -1,9 +1,33 @@
 #!/usr/bin/env python
 
+import argparse
 import sys
 import os
-
 import hashlib
+
+parser = argparse.ArgumentParser(description='find determines if the "from" files are duplicated in the "to" files')
+parser.add_argument('fromAndTo', nargs='*', default=[],
+                    help='directories/files to recurse and use as from and to arguments')
+parser.add_argument('--from', default=[], nargs='*',
+                    help='the files from recursing that are determined to be duplicates (ie: the ones that are reported)')
+parser.add_argument('--to', default=[], nargs='*',
+                    help='the files from recursing that are determined to be duplicated (ie: the ones that are not reported)')
+args = vars(parser.parse_args())
+parser.parse_args(sys.argv[1:len(sys.argv)])
+
+fromPaths = args['from']
+toPaths = args['to']
+for bothPath in args['fromAndTo']:
+  fromPaths.append(bothPath)
+  toPaths.append(bothPath)
+
+if len(fromPaths) == 0:
+  parser.print_help()
+  sys.exit("no from files/dir provided")
+if len(toPaths) == 0:
+  parser.print_help()
+  sys.exit("no to files/dir provided")
+
 
 def getPath(folder, file):
   if folder.endswith("/") :
@@ -25,41 +49,42 @@ def computeMd5(filePath):
   except IOError:
     return ""
 
-files = []
+fromFiles = []
+toFiles = []
 
-# we store all files so that we can
-# say how many are left to process
-#   an alternative is to iterate over the
-#   files and keep a count
-#   and walk the files a second time
-print "recursively finding all files"
-for dir in sys.argv:
+print "fromPaths = " + " ".join(fromPaths)
+print "toPaths = " + " ".join(toPaths)
+
+print "recursively finding all to files"
+for dir in toPaths:
   for folder, subs, fs in os.walk(dir):
     for file in fs:
-      files.append( getPath(folder , file ) )
-print "found " + str(len(files)) + " files."
+      toFiles.append( getPath(folder , file ) )
 
-filesDone = 0
+print "recursively finding all from files"
+for dir in fromPaths:
+  for folder, subs, fs in os.walk(dir):
+    for file in fs:
+      fromFiles.append( getPath(folder , file ) )
 
-# mapping of a file's hash to all the files that have that hash
-# all files with the empty hash are files that could
-# not be processed
+
 hashes = dict()
-print "finding duplicates"
-for file in files:
+print "building dict"
+for file in toFiles:
   md5 = computeMd5(file)
   dupeFiles = hashes.get(md5)
   if dupeFiles == None:
     dupeFiles = []
     hashes[md5] = dupeFiles
   dupeFiles.append(file)
-
-
-  filesDone = filesDone + 1
-  print str(float(filesDone) / float(len(files)) * 100) + "% done ( " + str(filesDone) + " out of " + str(len(files)) + " ) "
   
 
-print "printing dupes"
-for key, value in hashes.iteritems():
-  if len(value) > 1:
-    print key + "\t" + "\t".join(value)
+print "finding duplicates"
+for file in fromFiles:
+  md5 = computeMd5(file)
+  dupeFiles = hashes.get(md5)
+  if dupeFiles != None:
+    print md5 + " " + " ".join(dupeFiles) + " " + file
+
+
+  
