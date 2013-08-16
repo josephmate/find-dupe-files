@@ -1,6 +1,9 @@
 find-dupe-files
 ===============
 
+NOTE: i removed the timing estimate stuff for now!
+
+
 Finds duplicate files in the list of directories you provide
 
 motivation:
