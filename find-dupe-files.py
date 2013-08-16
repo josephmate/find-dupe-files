@@ -60,12 +60,14 @@ for dir in toPaths:
   for folder, subs, fs in os.walk(dir):
     for file in fs:
       toFiles.append( getPath(folder , file ) )
+print "we have " + str(len(toFiles)) + " to files"
 
 print "recursively finding all from files"
 for dir in fromPaths:
   for folder, subs, fs in os.walk(dir):
     for file in fs:
       fromFiles.append( getPath(folder , file ) )
+print "we have " + str(len(fromFiles)) + " from files"
 
 
 hashes = dict()
@@ -84,7 +86,7 @@ for file in fromFiles:
   md5 = computeMd5(file)
   dupeFiles = hashes.get(md5)
   if dupeFiles != None:
-    print md5 + " " + " ".join(dupeFiles) + " " + file
+    print md5 + "\t" + file + "\t" + "\t".join(dupeFiles)
 
 
   
