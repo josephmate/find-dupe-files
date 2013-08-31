@@ -12,6 +12,11 @@ parser.add_argument('--from', default=[], nargs='*',
                     help='the files from recursing that are determined to be duplicates (ie: the ones that are reported)')
 parser.add_argument('--to', default=[], nargs='*',
                     help='the files from recursing that are determined to be duplicated (ie: the ones that are not reported)')
+parser.add_argument('--out',
+                    help=
+"""the file to write the duplicate files with format
+<md5>\t<from file that is duplicating>\t<to-file1 that was duplicated>\t...\t<to-filen>
+""")
 args = vars(parser.parse_args())
 parser.parse_args(sys.argv[1:len(sys.argv)])
 
@@ -27,6 +32,8 @@ if len(fromPaths) == 0:
 if len(toPaths) == 0:
   parser.print_help()
   sys.exit("no to files/dir provided")
+
+outputFile = open(args['out'], 'w')
 
 
 def getPath(folder, file):
@@ -86,7 +93,7 @@ for file in fromFiles:
   md5 = computeMd5(file)
   dupeFiles = hashes.get(md5)
   if dupeFiles != None:
-    print md5 + "\t" + file + "\t" + "\t".join(dupeFiles)
+    outputFile.write(md5 + "\t" + file + "\t" + "\t".join(dupeFiles) + "\n")
 
 
   
