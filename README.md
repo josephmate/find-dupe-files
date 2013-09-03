@@ -1,6 +1,13 @@
 find-dupe-files
 ===============
 
+Well, this is embarrassing. There is a unix tool that already does this:
+fdupes. Move along, nothing to see here.
+
+=========================================================
+
+NOTE: both option does not work. (only --from --to works)
+
 NOTE: i removed the timing estimate stuff for now!
 
 

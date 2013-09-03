@@ -2,8 +2,10 @@
 
 import argparse
 import sys
+from sys import stdout
 import os
 import hashlib
+from timeleft import timeleft
 
 parser = argparse.ArgumentParser(description='find determines if the "from" files are duplicated in the "to" files')
 parser.add_argument('fromAndTo', nargs='*', default=[],
@@ -76,9 +78,9 @@ for dir in fromPaths:
       fromFiles.append( getPath(folder , file ) )
 print "we have " + str(len(fromFiles)) + " from files"
 
+status = timeleft( len(fromFiles) + len(toFiles) )
 
 hashes = dict()
-print "building dict"
 for file in toFiles:
   md5 = computeMd5(file)
   dupeFiles = hashes.get(md5)
@@ -86,14 +88,25 @@ for file in toFiles:
     dupeFiles = []
     hashes[md5] = dupeFiles
   dupeFiles.append(file)
+  status.complete_unit()
+  stdout.write("\r" + status.pretty_string() + "               ")
+  stdout.flush()
   
 
-print "finding duplicates"
 for file in fromFiles:
   md5 = computeMd5(file)
   dupeFiles = hashes.get(md5)
   if dupeFiles != None:
     outputFile.write(md5 + "\t" + file + "\t" + "\t".join(dupeFiles) + "\n")
+  status.complete_unit()
+  # the long string of space characters is to clear the previous line
+  # just in case the new line is shorter. When testing this, I noticed
+  # that characters from the previously written line would now be cleared
+  # when using \r only replaced by the next line.
+  stdout.write("\r" + status.pretty_string() + "               ")
+  stdout.flush()
 
-
+print ""
+outputFile.close()
+print "done"
   
